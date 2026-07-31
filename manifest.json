@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "WA Status Translator (Personal)",
+  "version": "0.1.0",
+  "description": "Personal MVP: one-click translate WhatsApp Web Status captions.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "https://api-free.deepl.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["content.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html"
+}
