@@ -1,5 +1,10 @@
 .wa-status-translate-btn {
   z-index: 999999;
+  margin-top: 6px;
+  /* The button sits in WhatsApp's own layout now. These keep it from being
+     stretched to full width when the caption's parent is a flex column. */
+  align-self: flex-start;
+  width: fit-content;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
   border: none;

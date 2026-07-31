@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WA Status Translator (Personal)",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Personal MVP: one-click translate WhatsApp Web Status captions.",
   "permissions": ["storage"],
   "host_permissions": [
