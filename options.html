@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>WA Status Translator — Settings</title>
+  <style>
+    body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; padding: 20px; width: 320px; }
+    label { display: block; margin-top: 12px; font-size: 13px; font-weight: 600; }
+    input, select { width: 100%; padding: 6px; margin-top: 4px; box-sizing: border-box; }
+    button { margin-top: 16px; padding: 8px 14px; cursor: pointer; }
+    #status { margin-top: 10px; font-size: 12px; color: green; }
+    p.hint { font-size: 11px; color: #666; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h3>WA Status Translator</h3>
+
+  <label for="apiKey">DeepL API Free key</label>
+  <input type="text" id="apiKey" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx" />
+  <p class="hint">Get a free key at deepl.com/pro-api (500k chars/month free tier).</p>
+
+  <label for="targetLang">Translate to</label>
+  <select id="targetLang">
+    <option value="EN">English</option>
+    <option value="UR">Urdu</option>
+    <option value="AR">Arabic</option>
+    <option value="FR">French</option>
+    <option value="ES">Spanish</option>
+    <option value="DE">German</option>
+  </select>
+
+  <button id="save">Save</button>
+  <div id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

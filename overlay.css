@@ -1,0 +1,21 @@
+.wa-status-translate-btn {
+  z-index: 999999;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wa-status-translate-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.wa-status-translated-text {
+  /* Inherits WhatsApp's own classes for font/size/color — this just adds
+     a light visual cue that the text is a translation, not the original. */
+  font-style: italic;
+}
