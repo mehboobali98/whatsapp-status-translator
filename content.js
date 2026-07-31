@@ -18,6 +18,7 @@ const SELECTORS = {
 
 const state = {
   currentCaptionEl: null,
+  currentText: "",
   buttonEl: null,
   translatedEl: null,
   showingTranslation: false,
@@ -51,25 +52,22 @@ function removeButtonAndOverlay() {
   state.buttonEl = null;
   state.translatedEl = null;
   state.currentCaptionEl = null;
+  state.currentText = "";
   state.showingTranslation = false;
-}
-
-function positionNear(el, targetEl, extraOffsetPx = 6) {
-  const rect = targetEl.getBoundingClientRect();
-  el.style.position = "fixed";
-  el.style.left = `${rect.left}px`;
-  el.style.top = `${rect.bottom + extraOffsetPx}px`;
 }
 
 function createTranslateButton(captionEl) {
   const btn = document.createElement("button");
   btn.textContent = "🌐 Translate";
   btn.className = "wa-status-translate-btn";
-  positionNear(btn, captionEl);
 
   btn.addEventListener("click", () => handleTranslateClick(captionEl, btn));
 
-  document.body.appendChild(btn);
+  // Inserted as an in-flow sibling rather than a fixed-position overlay, so it
+  // tracks the caption through the viewer's open animation, window resizes and
+  // layout shifts with no repositioning code at all. A fixed overlay measured
+  // once at creation ends up stranded whenever any of those happen.
+  captionEl.insertAdjacentElement("afterend", btn);
   return btn;
 }
 
@@ -109,8 +107,13 @@ function handleTranslateClick(captionEl, btn) {
     { type: "TRANSLATE_TEXT", text: captionEl.textContent.trim() },
     (response) => {
       if (!response?.ok) {
-        log("Translation failed:", response?.error);
+        const reason =
+          response?.error ?? "No response from the extension background worker.";
+        log("Translation failed:", reason);
         btn.textContent = "⚠️ Failed";
+        // Surfaced on hover — a dead API key and an exhausted monthly quota are
+        // otherwise indistinguishable to anyone without the console open.
+        btn.title = reason;
         setTimeout(() => (btn.textContent = "🌐 Translate"), 2000);
         return;
       }
@@ -118,6 +121,7 @@ function handleTranslateClick(captionEl, btn) {
       showTranslationInPlace(captionEl, response.translated);
       state.showingTranslation = true;
       btn.textContent = "🌐 Show original";
+      btn.title = "";
     }
   );
 }
@@ -130,15 +134,36 @@ function checkForStatus() {
     return;
   }
 
-  if (captionEl === state.currentCaptionEl) return; // already handled
+  const text = captionEl.textContent.trim();
+
+  // Node identity alone is not enough to say "already handled": status auto-
+  // advances on a timer and WhatsApp can reuse the same element with new text,
+  // which would leave the *previous* status's translation on screen. Also
+  // re-check that our button survived WhatsApp's own re-renders.
+  const unchanged =
+    captionEl === state.currentCaptionEl &&
+    text === state.currentText &&
+    state.buttonEl?.isConnected;
+  if (unchanged) return;
 
   removeButtonAndOverlay();
   state.currentCaptionEl = captionEl;
+  state.currentText = text;
   state.buttonEl = createTranslateButton(captionEl);
-  log("Caption found:", captionEl.textContent.trim());
+  log("Caption found:", text);
 }
 
-const observer = new MutationObserver(() => checkForStatus());
+// WhatsApp Web mutates the DOM constantly; without coalescing this runs a
+// querySelector thousands of times a minute while the page just sits there.
+let checkQueued = false;
+const observer = new MutationObserver(() => {
+  if (checkQueued) return;
+  checkQueued = true;
+  requestAnimationFrame(() => {
+    checkQueued = false;
+    checkForStatus();
+  });
+});
 observer.observe(document.body, { childList: true, subtree: true });
 
 log("WA Status Translator content script loaded.");
